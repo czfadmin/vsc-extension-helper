@@ -19,17 +19,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Print versions
         run: |
           git --version
           node --version
           npm --version
+          pnpm --version
           npx commitlint --version
       - name: Install commitlint
         run: |
-          yarn add conventional-changelog-conventionalcommits
-          yarn add commitlint@latest
+          pnpm add conventional-changelog-conventionalcommits
+          pnpm add commitlint@latest
 
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'
