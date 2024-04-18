@@ -1,46 +1,99 @@
-# Modern.js Package
+# VSC Extension Helper
 
-## Setup
+![GitHub Release Date](https://img.shields.io/github/release-date/czfadmin/vsc-extension-helper?logo=github)
+![GitHub last commit](https://img.shields.io/github/last-commit/czfadmin/vsc-extension-helper?logo=github)
 
-Install the dependencies:
+Use decorators or higher-order functions to help you register commands.
 
-```bash
-pnpm run install
-```
+## Usage
 
-## Get Started
-
-Run and debug the module:
+- Install the dependencies:
 
 ```bash
-pnpm run dev
+# yarn
+yarn add vsc-extension-helper
+
+# npm
+npm install vsc-extension-helper
+
 ```
 
-Run test cases:
+- If you use decorator syntax, modify `tsconfig.json` to enable the decorator experimental option, and modify the entry file to import `reflect-metadata`.
 
-```bash
-pnpm run test
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    ...
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    ...
+  },
+}
+
 ```
 
-Build the module for production:
+Add `import 'reflect-metadata'` at the beginning of the entry file
 
-```bash
-pnpm run build
+```ts
+// extension.ts
+import 'reflect-metadata';
 ```
 
-Enable optional features:
+- bootstrap your extension
 
-```bash
-pnpm run new
+```ts
+// extension.ts
+import 'reflect-metadata';
+
+import {ExtensionContext} from 'vscode';
+
+import {withActivate} from 'vsc-extension-helper/hoc';
+
+export const activate = withActivate({
+  extensionId: <Your extension id>,
+})(function activate(context:ExtensionContext){
+  // your code
+})
+
 ```
 
-Other commands:
+- register some commands
 
-```bash
-pnpm run lint         # Lint and fix source files
-pnpm run change       # Add a new changeset
-pnpm run bump         # Update version and changelog via changeset
-pnpm run release      # Release the package
+Use decorator
+
+```ts
+import { command, textEditorCommand } from 'vsc-extension-helper/decorators';
+
+// 1. use decorators
+class CommandUtils {
+  @command({
+    name: 'command1',
+  })
+  command1() {
+    // do something
+  }
+
+  // register text editor command: command2
+  @textEditorCommand()
+  command2() {
+    // do something
+  }
+}
 ```
 
-For more information, see the [Modern.js Module documentation](https://modernjs.dev/module-tools/en).
+Use higher-order functions
+
+```ts
+import { withCommand, withTextEditorCommand } from 'vsc-extension-helper/hoc';
+
+// register command3
+withCommand({
+  name: 'command3',
+})(function command3(...args: any[]) {
+  // do something
+});
+
+// register command4
+withTextEditorCommand(options)(function command4(...args: any[]) {});
+```

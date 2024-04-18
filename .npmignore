@@ -22,6 +22,11 @@ tests/
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
+.git/
+.changeset/
+.github/
+.husky/
+.vscode/
 
 src/
 
@@ -33,3 +38,9 @@ tsconfig.json
 CHANGELOG.md
 
 **/*/api/typings/auto-generated
+
+.commitlintrc.json
+.prettierignore
+.prettierrc
+.nvmrc
+.eslintrc.js
