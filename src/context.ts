@@ -72,3 +72,10 @@ export function registerContext(options: RegisterContextOption) {
   globalContext.set(EXTENSION_CONTEXT, options.context);
   globalContext.set(EXTENSION_ID, options.extensionId);
 }
+/**
+ * @zh 清除上下文
+ * @en Clear the context
+ */
+export function clearGlobalContext() {
+  globalContext.clear();
+}

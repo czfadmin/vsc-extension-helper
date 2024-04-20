@@ -21,9 +21,7 @@ export interface CommandOptions {
 
 export type TextEditorCommandOptions = Omit<CommandOptions, 'textEditor'>;
 
-export type WithCommandOptions = CommandOptions;
-
-export type WithTextCommandOptions = WithCommandOptions;
+export type VoidHandlerType = (...args: any[]) => void;
 
 export interface WithActiveOptions {
   extensionId: string;

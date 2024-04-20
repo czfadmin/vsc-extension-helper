@@ -1,12 +1,12 @@
 import { CommandOptions, TextEditorCommandOptions } from './types';
-import { internnalRegisterCommand } from './utils';
+import { internalRegisterCommand } from './utils';
 
 /**
  * @zh 用于注册vscode命令的装饰器
  * @en This method decorator is used to register methods in a class as vscode commands
  * @param options
  */
-export function command(options?: CommandOptions) {
+export function command(options?: Omit<CommandOptions, 'textEditor'>) {
   return function (
     target: any,
     propertyKey: string | symbol,
@@ -15,13 +15,10 @@ export function command(options?: CommandOptions) {
     const cmdName =
       typeof propertyKey === 'symbol' ? propertyKey.toString() : propertyKey;
 
-    internnalRegisterCommand(
-      {
-        cmdName,
-        handler: target[propertyKey],
-      },
-      options,
-    );
+    const name = options?.name || cmdName;
+    const _options = { ...(options || {}), name, textEditor: false };
+
+    internalRegisterCommand(_options, target[propertyKey]);
   };
 }
 
@@ -39,16 +36,9 @@ export function textEditorCommand(options?: TextEditorCommandOptions) {
   ) {
     const cmdName =
       typeof propertyKey === 'symbol' ? propertyKey.toString() : propertyKey;
+    const name = options?.name || cmdName;
+    const _options = { ...(options || {}), name, textEditor: true };
 
-    internnalRegisterCommand(
-      {
-        cmdName,
-        handler: target[propertyKey],
-      },
-      {
-        ...(options || {}),
-        textEditor: true,
-      },
-    );
+    internalRegisterCommand(_options, target[propertyKey]);
   };
 }

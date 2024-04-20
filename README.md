@@ -52,7 +52,9 @@ import {withActivate} from 'vsc-extension-helper/hoc';
 
 export const activate = withActivate({
   extensionId: <Your extension id>,
-})(function activate(context:ExtensionContext){
+})(async function activate(context:ExtensionContext){
+  // Maybe this method is not good at the moment, but you need to dynamically import the command code file you wrote here, otherwise the command will fail to register.
+  // For example: await import("./commands");
   // your code
 })
 
@@ -97,3 +99,9 @@ withCommand({
 // register command4
 withTextEditorCommand(options)(function command4(...args: any[]) {});
 ```
+
+## Example
+
+[Hello world]("./examples/hello-world")
+
+PS: Before running the sample code, please enter the home directory to **link** the package, and then test run the plug-in.
