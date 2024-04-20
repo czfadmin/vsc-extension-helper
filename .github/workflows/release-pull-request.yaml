@@ -33,7 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
         with:
-          fetch-depth: 1
+          fetch-depth: 100
 
       - name: Use Node.js ${{matrix.node-version}}
         uses: actions/setup-node@v3
@@ -59,12 +59,13 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build
-      - name: Release
+      - name: Create Release Pull Request
         uses: web-infra-dev/actions@v2
         with:
           version: ${{ github.event.inputs.version }}
           branch: ${{ github.event.inputs.branch }}
-          type: 'release'
+          versionNumber: 'auto'
+          type: 'pull request'
           tools: 'modern'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

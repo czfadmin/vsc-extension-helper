@@ -3,7 +3,7 @@ import { internnalRegisterCommand } from './utils';
 
 /**
  * @zh 用于注册vscode命令的装饰器
- * @en
+ * @en This method decorator is used to register methods in a class as vscode commands
  * @param options
  */
 export function command(options?: CommandOptions) {
@@ -27,6 +27,7 @@ export function command(options?: CommandOptions) {
 
 /**
  * @zh 用于注册 `textEditorCommand` 的装饰器
+ * @en Decorator for registering `textEditorCommand`
  * @param options
  * @returns
  */

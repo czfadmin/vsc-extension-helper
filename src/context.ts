@@ -1,5 +1,5 @@
 import { ExtensionContext } from 'vscode';
-import { WithActiveOptions } from './types';
+import { RegisterContextOption } from './types';
 import {
   EXTENSION_COMMANDS,
   EXTENSION_CONTEXT,
@@ -14,22 +14,37 @@ globalContext.set(EXTENSION_COMMANDS, [] as string[]);
 
 /**
  * @zh 获取插件id
+ * @en Get the plugin id
  * @returns
  */
 export function useExtensionId() {
-  return globalContext.get(EXTENSION_ID);
+  const extensionId = globalContext.get(EXTENSION_ID);
+  if (!extensionId) {
+    throw new Error(
+      '未发现插件ID,请在在插件启动入口处,通过`withActivate`注入插件ID',
+    );
+  }
+  return extensionId;
 }
 
 /**
  * @zh 获取插件上下文
+ * @en Get the plugin const first = useContext(second)
  * @returns
  */
-export function useExtensionContext() {
-  return globalContext.get(EXTENSION_CONTEXT);
+export function useExtensionContext(): ExtensionContext {
+  const context = globalContext.get(EXTENSION_CONTEXT);
+  if (!context) {
+    throw new Error(
+      '未发现插件上下文,请在在插件启动入口处,通过`withActivate`注入插件上下文',
+    );
+  }
+  return context;
 }
 
 /**
  * @zh 获取所有的命令,以及增加命令, 删除命令
+ * @en Get all commands, add commands, delete commands
  * @returns
  */
 export function useCommands(): [
@@ -48,12 +63,9 @@ export function useCommands(): [
   return [cmds, addCommand, deleteCommand];
 }
 
-interface RegisterContextOption extends WithActiveOptions {
-  context: ExtensionContext;
-}
-
 /**
  * @zh 注册上下文
+ * @en Register the context
  * @param options
  */
 export function registerContext(options: RegisterContextOption) {

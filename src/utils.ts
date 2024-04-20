@@ -1,9 +1,11 @@
 import { TextEditor, TextEditorEdit, commands, Disposable } from 'vscode';
 import { useCommands, useExtensionContext, useExtensionId } from './context';
 import { CommandOptions } from './types';
+import { VSC_EXTENSION_HELPER } from './constants';
 
 /**
  * @zh 内部注册命令辅助函数
+ * @en Internal registration command helper function
  * @param params
  * @param options
  * @returns
@@ -18,12 +20,21 @@ export function internnalRegisterCommand(
   options?: CommandOptions,
 ) {
   const [cmds, addCommand] = useCommands();
-  const context = useExtensionContext();
   const extensionId = useExtensionId();
+  let context = useExtensionContext();
+
+  if (!context && options?.context) {
+    context =
+      typeof options.context === 'function'
+        ? options.context()
+        : options.context;
+  }
 
   let { cmdName } = params;
   if (!context) {
-    console.error('[${norimalizeCmdName}]: 注册命令失败: ');
+    console.error(
+      `[${VSC_EXTENSION_HELPER}] >>> (${cmdName}): Registration command failed, failed to obtain plug-in context`,
+    );
     return;
   }
 
@@ -34,7 +45,9 @@ export function internnalRegisterCommand(
   const norimalizeCmdName = `${extensionId}.${cmdName}`;
 
   if (cmds.includes(norimalizeCmdName)) {
-    console.error(`[${norimalizeCmdName}]: 此命令已经注册, 注册失败`);
+    console.error(
+      `[${VSC_EXTENSION_HELPER}] >>> (${cmdName}): This command has already been registered, registration failed.`,
+    );
     return;
   }
 
@@ -53,5 +66,7 @@ export function internnalRegisterCommand(
   }
   context.subscriptions.push(disposer);
   addCommand(norimalizeCmdName);
-  console.log(`[${norimalizeCmdName}]: 注册成功`);
+  console.log(
+    `[${VSC_EXTENSION_HELPER}] >>> (${cmdName}): Registration succeeded`,
+  );
 }
