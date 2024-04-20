@@ -1,3 +1,0 @@
----
-'vsc-extension-helper': patch
----
