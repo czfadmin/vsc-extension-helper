@@ -1,5 +1,13 @@
 # vsc-extension-helper
 
+## 0.0.4
+
+### Patch Changes
+
+- a4c1160: fixed the problem of normal registration of commands during activation.
+- 520c6b7:
+- c93fd70:
+
 ## 0.0.3
 
 ### Patch Changes
