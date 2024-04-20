@@ -10,14 +10,11 @@ import { VSC_EXTENSION_HELPER } from './constants';
  * @param options
  * @returns
  */
-export function internnalRegisterCommand(
-  params: {
-    cmdName: string;
-    handler:
-      | ((...args: any[]) => void)
-      | ((editor: TextEditor, edit: TextEditorEdit, ...args: any[]) => void);
-  },
-  options?: CommandOptions,
+export function internalRegisterCommand(
+  options: CommandOptions,
+  handler:
+    | ((...args: any[]) => void)
+    | ((editor: TextEditor, edit: TextEditorEdit, ...args: any[]) => void),
 ) {
   const [cmds, addCommand] = useCommands();
   const extensionId = useExtensionId();
@@ -30,35 +27,26 @@ export function internnalRegisterCommand(
         : options.context;
   }
 
-  let { cmdName } = params;
+  const { name } = options;
+  const norimalizeCmdName = `${extensionId}.${name}`;
   if (!context) {
-    console.error(
-      `[${VSC_EXTENSION_HELPER}] >>> (${cmdName}): Registration command failed, failed to obtain plug-in context`,
+    throw new Error(
+      `${VSC_EXTENSION_HELPER}] | ${norimalizeCmdName}: Registration command failed, failed to obtain plug-in context`,
     );
-    return;
   }
-
-  if (options) {
-    cmdName = options.name || params.cmdName;
-  }
-
-  const norimalizeCmdName = `${extensionId}.${cmdName}`;
 
   if (cmds.includes(norimalizeCmdName)) {
     console.error(
-      `[${VSC_EXTENSION_HELPER}] >>> (${cmdName}): This command has already been registered, registration failed.`,
+      `${VSC_EXTENSION_HELPER} | ${norimalizeCmdName}: This command has already been registered, registration failed.`,
     );
     return;
   }
 
   let disposer: Disposable;
   if (options && options.textEditor) {
-    disposer = commands.registerTextEditorCommand(
-      norimalizeCmdName,
-      params.handler,
-    );
+    disposer = commands.registerTextEditorCommand(norimalizeCmdName, handler);
   } else {
-    disposer = commands.registerCommand(norimalizeCmdName, params.handler);
+    disposer = commands.registerCommand(norimalizeCmdName, handler);
   }
 
   if (!disposer) {
@@ -67,6 +55,6 @@ export function internnalRegisterCommand(
   context.subscriptions.push(disposer);
   addCommand(norimalizeCmdName);
   console.log(
-    `[${VSC_EXTENSION_HELPER}] >>> (${cmdName}): Registration succeeded`,
+    `${VSC_EXTENSION_HELPER} | ${norimalizeCmdName}: Registration succeeded`,
   );
 }

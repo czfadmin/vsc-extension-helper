@@ -27,13 +27,15 @@ tests/
 .github/
 .husky/
 .vscode/
-
 src/
+examples/
 
 modern.config.*
 jest.config.js
 .eslintrc.js
 .eslintrc
+.eslintignore
+
 tsconfig.json
 CHANGELOG.md
 
@@ -43,4 +45,3 @@ CHANGELOG.md
 .prettierignore
 .prettierrc
 .nvmrc
-.eslintrc.js
