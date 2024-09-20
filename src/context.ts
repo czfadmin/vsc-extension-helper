@@ -6,7 +6,10 @@ import {
   EXTENSION_ID,
 } from './constants';
 
-const globalContext = new Map();
+const globalContext = new Map<
+  string,
+  null | ExtensionContext | string | string[]
+>();
 
 globalContext.set(EXTENSION_ID, '');
 globalContext.set(EXTENSION_CONTEXT, null);
@@ -39,7 +42,7 @@ export function useExtensionContext(): ExtensionContext {
       '未发现插件上下文,请在在插件启动入口处,通过`withActivate`注入插件上下文',
     );
   }
-  return context;
+  return context as ExtensionContext;
 }
 
 /**
@@ -52,7 +55,8 @@ export function useCommands(): [
   (name: string) => void,
   (name: string) => void,
 ] {
-  let cmds = globalContext.get(EXTENSION_COMMANDS);
+  let cmds = globalContext.get(EXTENSION_COMMANDS) as string[];
+
   function addCommand(name: string) {
     cmds.push(name);
   }
@@ -72,10 +76,13 @@ export function registerContext(options: RegisterContextOption) {
   globalContext.set(EXTENSION_CONTEXT, options.context);
   globalContext.set(EXTENSION_ID, options.extensionId);
 }
+
 /**
  * @zh 清除上下文
  * @en Clear the context
  */
 export function clearGlobalContext() {
+  const context = useExtensionContext();
+  context?.subscriptions.forEach(it => it.dispose());
   globalContext.clear();
 }
