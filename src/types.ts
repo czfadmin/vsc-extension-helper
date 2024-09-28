@@ -1,8 +1,11 @@
-import { ExtensionContext } from 'vscode';
-
+import { ExtensionContext, TextEditor, TextEditorEdit } from 'vscode';
+/**
+ * @zh 带注册命令配置
+ *
+ */
 export interface CommandOptions {
   /**
-   * @zh 自定义命令名称, 否则使用函数的名字
+   * @zh 自定义命令名称, 否则使用函数的名字, 不包含插件ID
    * @en Customize the command name, otherwise use the function name
    */
   name?: string;
@@ -19,6 +22,29 @@ export interface CommandOptions {
   context?: ExtensionContext | (() => ExtensionContext);
 }
 
+/**
+ * @zh 代表命令处理函数
+ */
+export type CommandHandlerType = ((...args: any[]) => void)
+    | ((editor: TextEditor, edit: TextEditorEdit, ...args: any[]) => void)
+
+/**
+ * @zh 命令配置
+ */
+export interface InternalCommandOption {
+  /**
+   * @zh 命令ID
+   */
+  name: string;
+
+  options: CommandOptions;
+
+  /**
+   * @zh 命令处理函数
+   */
+  handler: CommandHandlerType;
+}
+
 export type TextEditorCommandOptions = Omit<CommandOptions, 'textEditor'>;
 
 export type VoidHandlerType = (...args: any[]) => void;
@@ -30,3 +56,6 @@ export interface WithActiveOptions {
 export interface RegisterContextOption extends WithActiveOptions {
   context: ExtensionContext;
 }
+
+
+

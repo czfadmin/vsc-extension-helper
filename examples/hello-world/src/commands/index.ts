@@ -1,4 +1,4 @@
-import { command } from 'vsc-extension-helper';
+import { command, withCommand } from 'vsc-extension-helper';
 import { window } from 'vscode';
 export class CommandUtils {
   @command({ name: 'helloWorld' })
@@ -11,3 +11,7 @@ export class CommandUtils {
     window.showInformationMessage('hello');
   }
 }
+
+export const foo2 = withCommand({ name: 'foo2' })(function foo2() {
+  window.showInformationMessage('foo2 command');
+})
