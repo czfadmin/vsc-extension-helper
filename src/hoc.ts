@@ -2,6 +2,7 @@ import { isAsyncFunction } from 'node:util/types';
 import { ExtensionContext } from 'vscode';
 import {
   clearGlobalContext,
+  registerCommands,
   registerContext,
   useExtensionContext,
 } from './context';
@@ -123,6 +124,7 @@ export function withActivate(
           context: ctx,
         });
         await handler(ctx);
+        registerCommands()
       };
     }
 
@@ -131,8 +133,8 @@ export function withActivate(
         ...options,
         context: ctx,
       });
-
       handler(ctx);
+      registerCommands()
     };
   };
 }

@@ -21,7 +21,6 @@ output/
 output_resource/
 log/
 
-.vscode/**/*
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
@@ -29,5 +28,6 @@ log/
 **/*/typings/auto-generated
 
 modern.config.local.*
+**/*/out/
 
 bookmark-manager.json

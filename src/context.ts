@@ -1,19 +1,29 @@
-import { ExtensionContext } from 'vscode';
-import { RegisterContextOption } from './types';
+import { Disposable, ExtensionContext, commands } from 'vscode';
+import {
+  CommandHandlerType,
+  CommandOptions,
+  InternalCommandOption,
+  RegisterContextOption,
+} from './types';
 import {
   EXTENSION_COMMANDS,
   EXTENSION_CONTEXT,
   EXTENSION_ID,
+  VSC_EXTENSION_HELPER,
 } from './constants';
 
 const globalContext = new Map<
   string,
-  null | ExtensionContext | string | string[]
+  null | ExtensionContext | string | InternalCommandOption[]
 >();
 
+// 保存上下文ID
 globalContext.set(EXTENSION_ID, '');
+// 保存上下文
 globalContext.set(EXTENSION_CONTEXT, null);
-globalContext.set(EXTENSION_COMMANDS, [] as string[]);
+
+// 保存全局命令注册信息
+globalContext.set(EXTENSION_COMMANDS, [] as InternalCommandOption[]);
 
 /**
  * @zh 获取插件id
@@ -51,17 +61,35 @@ export function useExtensionContext(): ExtensionContext {
  * @returns
  */
 export function useCommands(): [
-  string[],
-  (name: string) => void,
-  (name: string) => void,
+  InternalCommandOption[],
+  (
+    command: string,
+    options: CommandOptions & { handler: CommandHandlerType },
+  ) => void,
+  (command: string) => void,
 ] {
-  let cmds = globalContext.get(EXTENSION_COMMANDS) as string[];
+  let cmds = globalContext.get(EXTENSION_COMMANDS) as InternalCommandOption[];
 
-  function addCommand(name: string) {
-    cmds.push(name);
+  function addCommand(
+    name: string,
+    options: CommandOptions & { handler: CommandHandlerType },
+  ) {
+    if (cmds.find(it => it.name === name)) {
+      console.error(
+        `${VSC_EXTENSION_HELPER} | ${name}: This command has already been registered, registration failed.`,
+      );
+      return;
+    }
+
+    const { handler, ...rest } = options;
+    cmds.push({
+      name,
+      options: rest,
+      handler: handler,
+    });
   }
   function deleteCommand(name: string) {
-    cmds = cmds.filter((it: string) => it !== name);
+    cmds = cmds.filter(it => it.name !== name);
     globalContext.set(EXTENSION_COMMANDS, cmds);
   }
   return [cmds, addCommand, deleteCommand];
@@ -75,6 +103,30 @@ export function useCommands(): [
 export function registerContext(options: RegisterContextOption) {
   globalContext.set(EXTENSION_CONTEXT, options.context);
   globalContext.set(EXTENSION_ID, options.extensionId);
+}
+
+/**
+ * @zh 开始注册使用装饰器和高阶函数注册的命令
+ */
+export function registerCommands() {
+  const extensionId = globalContext.get(EXTENSION_ID) as string;
+  const cmds = globalContext.get(EXTENSION_COMMANDS) as InternalCommandOption[];
+  const context = useExtensionContext();
+  cmds.forEach(it => {
+    let disposer: Disposable | null;
+    const commandName = `${extensionId}.${it.name}`;
+    if (!it.options.textEditor) {
+      disposer = commands.registerCommand(commandName, it.handler);
+    } else {
+      disposer = commands.registerTextEditorCommand(commandName, it.handler);
+    }
+    if (!disposer && context) {
+      context.subscriptions.push(disposer);
+    }
+    console.log(
+      `${VSC_EXTENSION_HELPER} | ${commandName}: Registration succeeded`,
+    );
+  });
 }
 
 /**

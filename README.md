@@ -50,11 +50,13 @@ import {ExtensionContext} from 'vscode';
 
 import {withActivate} from 'vsc-extension-helper/hoc';
 
+// your commands
+import "./commands";
+
 export const activate = withActivate({
   extensionId: <Your extension id>,
 })(async function activate(context:ExtensionContext){
   // Maybe this method is not good at the moment, but you need to dynamically import the command code file you wrote here, otherwise the command will fail to register.
-  // For example: await import("./commands");
   // your code
 })
 

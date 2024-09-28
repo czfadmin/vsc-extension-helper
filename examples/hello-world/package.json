@@ -26,6 +26,10 @@
         "title": "Hello World"
       },
       {
+        "command": "hello-world.foo2",
+        "title": "Hello World"
+      },
+      {
         "command": "hello-world.bar",
         "title": "Hello World"
       }
@@ -37,7 +41,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "dev:link": "yarn link vsc-extension-helper"
   },
   "devDependencies": {
     "@types/vscode": "^1.88.0",
