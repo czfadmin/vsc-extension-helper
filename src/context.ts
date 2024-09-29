@@ -4,26 +4,29 @@ import {
   CommandOptions,
   InternalCommandOption,
   RegisterContextOption,
+  WithActiveOptions,
 } from './types';
 import {
   EXTENSION_COMMANDS,
+  GLOBAL_CONFIG,
   EXTENSION_CONTEXT,
-  EXTENSION_ID,
   VSC_EXTENSION_HELPER,
 } from './constants';
 
-const globalContext = new Map<
-  string,
-  null | ExtensionContext | string | InternalCommandOption[]
->();
+export type GlobalContextType = WithActiveOptions & {
+  commands: InternalCommandOption[];
+  context: ExtensionContext | null;
+};
 
-// 保存上下文ID
-globalContext.set(EXTENSION_ID, '');
-// 保存上下文
-globalContext.set(EXTENSION_CONTEXT, null);
+let globalContext: GlobalContextType = {
+  context: null,
+  commands: [],
+  extensionId: '',
+};
 
-// 保存全局命令注册信息
-globalContext.set(EXTENSION_COMMANDS, [] as InternalCommandOption[]);
+export function useGlobalContext(): GlobalContextType {
+  return globalContext;
+}
 
 /**
  * @zh 获取插件id
@@ -31,13 +34,13 @@ globalContext.set(EXTENSION_COMMANDS, [] as InternalCommandOption[]);
  * @returns
  */
 export function useExtensionId() {
-  const extensionId = globalContext.get(EXTENSION_ID);
-  if (!extensionId) {
+  const config = useGlobalContext();
+  if (!config.extensionId) {
     throw new Error(
       '未发现插件ID,请在在插件启动入口处,通过`withActivate`注入插件ID',
     );
   }
-  return extensionId;
+  return config.extensionId;
 }
 
 /**
@@ -46,7 +49,7 @@ export function useExtensionId() {
  * @returns
  */
 export function useExtensionContext(): ExtensionContext {
-  const context = globalContext.get(EXTENSION_CONTEXT);
+  const context = useGlobalContext().context;
   if (!context) {
     throw new Error(
       '未发现插件上下文,请在在插件启动入口处,通过`withActivate`注入插件上下文',
@@ -68,13 +71,11 @@ export function useCommands(): [
   ) => void,
   (command: string) => void,
 ] {
-  let cmds = globalContext.get(EXTENSION_COMMANDS) as InternalCommandOption[];
-
   function addCommand(
     name: string,
     options: CommandOptions & { handler: CommandHandlerType },
   ) {
-    if (cmds.find(it => it.name === name)) {
+    if (globalContext.commands.find(it => it.name === name)) {
       console.error(
         `${VSC_EXTENSION_HELPER} | ${name}: This command has already been registered, registration failed.`,
       );
@@ -82,17 +83,18 @@ export function useCommands(): [
     }
 
     const { handler, ...rest } = options;
-    cmds.push({
+    globalContext.commands.push({
       name,
       options: rest,
       handler: handler,
     });
   }
   function deleteCommand(name: string) {
-    cmds = cmds.filter(it => it.name !== name);
-    globalContext.set(EXTENSION_COMMANDS, cmds);
+    globalContext.commands = globalContext.commands.filter(
+      it => it.name !== name,
+    );
   }
-  return [cmds, addCommand, deleteCommand];
+  return [globalContext.commands, addCommand, deleteCommand];
 }
 
 /**
@@ -101,20 +103,19 @@ export function useCommands(): [
  * @param options
  */
 export function registerContext(options: RegisterContextOption) {
-  globalContext.set(EXTENSION_CONTEXT, options.context);
-  globalContext.set(EXTENSION_ID, options.extensionId);
+  globalContext.context = options.context;
+  globalContext.extensionId = options.extensionId;
+  globalContext.logger = options.logger || false;
 }
 
 /**
  * @zh 开始注册使用装饰器和高阶函数注册的命令
  */
 export function registerCommands() {
-  const extensionId = globalContext.get(EXTENSION_ID) as string;
-  const cmds = globalContext.get(EXTENSION_COMMANDS) as InternalCommandOption[];
   const context = useExtensionContext();
-  cmds.forEach(it => {
+  globalContext.commands.forEach(it => {
     let disposer: Disposable | null;
-    const commandName = `${extensionId}.${it.name}`;
+    const commandName = `${globalContext.extensionId}.${it.name}`;
     if (!it.options.textEditor) {
       disposer = commands.registerCommand(commandName, it.handler);
     } else {
@@ -123,9 +124,10 @@ export function registerCommands() {
     if (!disposer && context) {
       context.subscriptions.push(disposer);
     }
-    console.log(
-      `${VSC_EXTENSION_HELPER} | ${commandName}: Registration succeeded`,
-    );
+    globalContext.logger &&
+      console.log(
+        `${VSC_EXTENSION_HELPER} | ${commandName}: Registration succeeded`,
+      );
   });
 }
 
@@ -136,5 +138,7 @@ export function registerCommands() {
 export function clearGlobalContext() {
   const context = useExtensionContext();
   context?.subscriptions.forEach(it => it.dispose());
-  globalContext.clear();
+  globalContext.commands.length = 0;
+  globalContext.context = null;
+  globalContext.extensionId = '';
 }
