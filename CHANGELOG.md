@@ -1,5 +1,11 @@
 # vsc-extension-helper
 
+## 0.0.5
+
+### Patch Changes
+
+- 113b6e9: 命令注册更改为延迟注册
+
 ## 0.0.4
 
 ### Patch Changes

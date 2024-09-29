@@ -67,3 +67,6 @@ export interface WithActiveOptions {
 export interface RegisterContextOption extends WithActiveOptions {
   context: ExtensionContext;
 }
+
+
+

@@ -29,17 +29,17 @@ export const activate = withActivate({
   })(function helloworld(...args: any[]) {
     vscode.window.showInformationMessage('group1: hello world');
   });
+
+  function helloworld2(...args: any[]) {
+    vscode.window.showInformationMessage('group1: hello world2');
+  }
+  helloworld2.group = ['group2'];
+
+  // 4.
+  withCommand({
+    name: 'helloworld2',
+  })(helloworld2);
 });
-
-function helloworld2(...args: any[]) {
-  vscode.window.showInformationMessage('group1: hello world2');
-}
-helloworld2.group = ['group2'];
-
-// 4.
-withCommand({
-  name: 'helloworld2',
-})(helloworld2);
 
 // 2.
 // export const activate = withActivate({
