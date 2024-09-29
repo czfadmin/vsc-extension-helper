@@ -14,7 +14,7 @@ export function internalRegisterCommand(
   handler: CommandHandlerType,
 ) {
   const [cmds, addCommand] = useCommands();
-  const { name } = options;
+  const { name, group = [] } = options;
 
   if (!name) {
     throw new Error(
@@ -22,7 +22,9 @@ export function internalRegisterCommand(
     );
   }
 
-  addCommand(name, {
+  const _name = `${group.length ? group.join('.') + '.' : ''}${name}`.trim();
+
+  addCommand(_name, {
     ...options,
     handler,
   });

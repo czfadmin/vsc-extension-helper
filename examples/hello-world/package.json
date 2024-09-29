@@ -32,6 +32,14 @@
       {
         "command": "hello-world.bar",
         "title": "Hello World"
+      },
+      {
+        "command": "hello-world.group1.helloworld",
+        "title": "Group1.HelloWorld"
+      },
+      {
+        "command": "hello-world.group2.helloworld2",
+        "title": "Group2.HelloWorld2"
       }
     ]
   },
