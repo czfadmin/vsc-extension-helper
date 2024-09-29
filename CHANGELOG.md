@@ -1,5 +1,11 @@
 # vsc-extension-helper
 
+## 0.0.6
+
+### Patch Changes
+
+- 2cdc5b2: 增加命令分组功能
+
 ## 0.0.5
 
 ### Patch Changes
