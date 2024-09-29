@@ -1,5 +1,13 @@
 # vsc-extension-helper
 
+## 0.0.7
+
+### Patch Changes
+
+- 88ad996: 命令注册更改为延迟注册
+- 88ad996: 增加命令分组功能
+- 88ad996: 修复类型错误, 增加日志开关
+
 ## 0.0.6
 
 ### Patch Changes
