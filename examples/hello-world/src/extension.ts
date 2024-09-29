@@ -11,6 +11,7 @@ import './commands/index';
 // 1.
 export const activate = withActivate({
   extensionId: 'hello-world',
+  logger: true
 })(async function (ctx: vscode.ExtensionContext) {
   // 1.use hoc
   withCommand({ name: 'foo' })(function foo() {

@@ -55,18 +55,16 @@ export interface InternalCommandOption {
 export type TextEditorCommandOptions = Omit<CommandOptions, 'textEditor'>;
 
 export interface IVoidHandler {
-  group: string | string[];
+  group?: string | string[];
 
   (...args: any[]): void;
 }
 
 export interface WithActiveOptions {
   extensionId: string;
+  logger?: boolean;
 }
 
 export interface RegisterContextOption extends WithActiveOptions {
   context: ExtensionContext;
 }
-
-
-
