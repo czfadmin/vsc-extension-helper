@@ -6,28 +6,34 @@ import {
   registerContext,
   useExtensionContext,
 } from './context';
-import { WithActiveOptions, CommandOptions, VoidHandlerType } from './types';
+import { WithActiveOptions, CommandOptions, IVoidHandler } from './types';
 import { internalRegisterCommand } from './utils';
 
 function withCommandHelper(
-  optionsOrHandler: Omit<CommandOptions, 'textEditor'> | VoidHandlerType,
+  optionsOrHandler: Omit<CommandOptions, 'textEditor'> | IVoidHandler,
   isTextEditorCmd = false,
 ) {
   const funcPrefix = isTextEditorCmd ? 'TextEditor' : '';
   const noNameError = new Error(
     `The registered command name cannot be empty, please use \`function funcName(...args:any[]){}\` or \`with${funcPrefix}Command(options)(function funcName(...args:any[]){}\` to register Order`,
   );
+
   let cmdName = '';
   let internalHandler = optionsOrHandler;
   let internalOptions: CommandOptions = {};
+
   const paramIsHandler = typeof optionsOrHandler === 'function';
+
   if (paramIsHandler) {
     if (!optionsOrHandler.name) {
       throw noNameError;
     }
+
     internalHandler = optionsOrHandler;
     internalOptions = {
       name: optionsOrHandler.name,
+      group:
+        'group' in optionsOrHandler ? (optionsOrHandler.group as string[]) : [],
       textEditor: isTextEditorCmd,
     };
     // 此时直接注册,后面的返回只是为了欺骗ts的不进行报错
@@ -40,37 +46,49 @@ function withCommandHelper(
     );
   }
 
-  return function (handler: VoidHandlerType) {
+  return function (handler: IVoidHandler) {
     if (
       !paramIsHandler &&
       (!handler.name || (optionsOrHandler && !optionsOrHandler.name))
     ) {
       throw noNameError;
     }
-    cmdName = paramIsHandler ? cmdName : handler.name;
-    internalHandler = paramIsHandler ? internalHandler : handler;
-    if (!paramIsHandler) {
-      internalOptions = {
-        ...internalOptions,
-        ...optionsOrHandler,
-        textEditor: isTextEditorCmd,
-      };
+
+    if (paramIsHandler) {
+      return;
     }
+
+    internalOptions.name =
+      internalOptions.name || paramIsHandler ? cmdName : handler.name;
+
+    internalHandler = paramIsHandler ? internalHandler : handler;
+
+    if (!internalOptions.group) {
+      internalOptions.group =
+        (typeof handler.group === 'string' ? [handler.group] : handler.group) ||
+        [];
+    }
+
+    internalOptions = {
+      ...internalOptions,
+      ...optionsOrHandler,
+      textEditor: isTextEditorCmd,
+    };
 
     internalRegisterCommand(
       internalOptions,
-      internalHandler as VoidHandlerType,
+      internalHandler as IVoidHandler,
     );
   };
 }
 /**
- * @zh 通过高阶函数创建一个命令
+ * @zh 通过高阶函数创建一个命令, 当第一个参数传递函数时, 将无法使用分组功能
  * @en Create a command through a higher-order function
  * @param optionsOrHandler
  * @returns
  */
 export function withCommand(
-  optionsOrHandler: CommandOptions | VoidHandlerType,
+  optionsOrHandler: CommandOptions | IVoidHandler,
 ) {
   return withCommandHelper(optionsOrHandler, false);
 }
@@ -82,7 +100,7 @@ export function withCommand(
  * @returns
  */
 export function withTextEditorCommand(
-  optionsOrHandler: CommandOptions | VoidHandlerType,
+  optionsOrHandler: CommandOptions | IVoidHandler,
 ) {
   return withCommandHelper(optionsOrHandler, true);
 }
@@ -124,7 +142,7 @@ export function withActivate(
           context: ctx,
         });
         await handler(ctx);
-        registerCommands()
+        registerCommands();
       };
     }
 
@@ -134,7 +152,7 @@ export function withActivate(
         context: ctx,
       });
       handler(ctx);
-      registerCommands()
+      registerCommands();
     };
   };
 }
@@ -145,7 +163,7 @@ export function withActivate(
  * @param handler 自定义的取消激活函数
  * @returns
  */
-export function withDeactivate(handler?: VoidHandlerType) {
+export function withDeactivate(handler?: IVoidHandler) {
   return function (ctx: ExtensionContext) {
     clearGlobalContext();
     handler?.();

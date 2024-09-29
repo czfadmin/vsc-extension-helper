@@ -15,7 +15,8 @@ export function command(options?: Omit<CommandOptions, 'textEditor'>) {
     const cmdName =
       typeof propertyKey === 'symbol' ? propertyKey.toString() : propertyKey;
 
-    const name = options?.name || cmdName;
+    const name: string = options?.name || cmdName;
+
     const _options = {
       ...(options || {}),
       name,
@@ -38,10 +39,13 @@ export function textEditorCommand(options?: TextEditorCommandOptions) {
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) {
+
     const cmdName =
       typeof propertyKey === 'symbol' ? propertyKey.toString() : propertyKey;
-    const name = options?.name || cmdName;
-    const _options = { ...(options || {}), name, textEditor: true };
+
+    const name: string = options?.name || cmdName;
+
+    const _options = { ...(options || { group: [] }), name, textEditor: true };
 
     internalRegisterCommand(_options, target[propertyKey]);
   };

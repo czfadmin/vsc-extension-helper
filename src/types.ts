@@ -9,6 +9,12 @@ export interface CommandOptions {
    * @en Customize the command name, otherwise use the function name
    */
   name?: string;
+
+  /**
+   * @zh 命令分组, 传递字符串数组, 后续命令生成的时候进行拼接, 如: 插件ID.group1.group2.commandName
+   * @en Command group, pass in a string array, and then concatenate when the command is generated later
+   */
+  group?: string[];
   /**
    * @zh 是否注册为`TextEditor` 命令
    * @en Whether to use the `registerTextEditorCommand` method
@@ -25,8 +31,9 @@ export interface CommandOptions {
 /**
  * @zh 代表命令处理函数
  */
-export type CommandHandlerType = ((...args: any[]) => void)
-    | ((editor: TextEditor, edit: TextEditorEdit, ...args: any[]) => void)
+export type CommandHandlerType =
+  | ((...args: any[]) => void)
+  | ((editor: TextEditor, edit: TextEditorEdit, ...args: any[]) => void);
 
 /**
  * @zh 命令配置
@@ -47,7 +54,11 @@ export interface InternalCommandOption {
 
 export type TextEditorCommandOptions = Omit<CommandOptions, 'textEditor'>;
 
-export type VoidHandlerType = (...args: any[]) => void;
+export interface IVoidHandler {
+  group: string | string[];
+
+  (...args: any[]): void;
+}
 
 export interface WithActiveOptions {
   extensionId: string;
@@ -56,6 +67,3 @@ export interface WithActiveOptions {
 export interface RegisterContextOption extends WithActiveOptions {
   context: ExtensionContext;
 }
-
-
-

@@ -13,15 +13,33 @@ export const activate = withActivate({
   extensionId: 'hello-world',
 })(async function (ctx: vscode.ExtensionContext) {
   // 1.use hoc
-  // withCommand({ name: 'foo' })(function foo() {
-  //   vscode.window.showInformationMessage('foo command');
-  // });
+  withCommand({ name: 'foo' })(function foo() {
+    vscode.window.showInformationMessage('foo command');
+  });
 
-  // // 2. use hoc without options
-  // withCommand(function bar(...args: any[]) {
-  //   vscode.window.showInformationMessage('bar command');
-  // });
+  // 2. use hoc without options
+  withCommand(function bar(...args: any[]) {
+    vscode.window.showInformationMessage('bar command');
+  });
+
+  // 3. use group
+  withCommand({
+    name: 'helloworld',
+    group: ['group1'],
+  })(function helloworld(...args: any[]) {
+    vscode.window.showInformationMessage('group1: hello world');
+  });
 });
+
+function helloworld2(...args: any[]) {
+  vscode.window.showInformationMessage('group1: hello world2');
+}
+helloworld2.group = ['group2'];
+
+// 4.
+withCommand({
+  name: 'helloworld2',
+})(helloworld2);
 
 // 2.
 // export const activate = withActivate({
