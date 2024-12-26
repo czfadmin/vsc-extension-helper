@@ -23,7 +23,7 @@ export function command(options?: Omit<CommandOptions, 'textEditor'>) {
       textEditor: false,
     };
 
-    internalRegisterCommand(_options, target[propertyKey]);
+    internalRegisterCommand(_options, target[propertyKey].bind(target));
   };
 }
 
@@ -39,7 +39,6 @@ export function textEditorCommand(options?: TextEditorCommandOptions) {
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) {
-
     const cmdName =
       typeof propertyKey === 'symbol' ? propertyKey.toString() : propertyKey;
 
@@ -47,6 +46,6 @@ export function textEditorCommand(options?: TextEditorCommandOptions) {
 
     const _options = { ...(options || { group: [] }), name, textEditor: true };
 
-    internalRegisterCommand(_options, target[propertyKey]);
+    internalRegisterCommand(_options, target[propertyKey].bind(target));
   };
 }
