@@ -6,19 +6,14 @@ import {
   RegisterContextOption,
   WithActiveOptions,
 } from './types';
-import {
-  EXTENSION_COMMANDS,
-  GLOBAL_CONFIG,
-  EXTENSION_CONTEXT,
-  VSC_EXTENSION_HELPER,
-} from './constants';
+import { VSC_EXTENSION_HELPER } from './constants';
 
 export type GlobalContextType = WithActiveOptions & {
   commands: InternalCommandOption[];
   context: ExtensionContext | null;
 };
 
-let globalContext: GlobalContextType = {
+const globalContext: GlobalContextType = {
   context: null,
   commands: [],
   extensionId: '',
@@ -49,13 +44,13 @@ export function useExtensionId() {
  * @returns
  */
 export function useExtensionContext(): ExtensionContext {
-  const context = useGlobalContext().context;
+  const { context } = useGlobalContext();
   if (!context) {
     throw new Error(
       '未发现插件上下文,请在在插件启动入口处,通过`withActivate`注入插件上下文',
     );
   }
-  return context as ExtensionContext;
+  return context;
 }
 
 /**
@@ -86,7 +81,7 @@ export function useCommands(): [
     globalContext.commands.push({
       name,
       options: rest,
-      handler: handler,
+      handler,
     });
   }
   function deleteCommand(name: string) {

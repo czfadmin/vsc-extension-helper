@@ -1,5 +1,11 @@
 # vsc-extension-helper
 
+## 0.0.8
+
+### Patch Changes
+
+- fix(decorator): 修复装饰器无法绑定 this
+
 ## 0.0.7
 
 ### Patch Changes

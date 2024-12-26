@@ -18,7 +18,7 @@ function withCommandHelper(
     `The registered command name cannot be empty, please use \`function funcName(...args:any[]){}\` or \`with${funcPrefix}Command(options)(function funcName(...args:any[]){}\` to register Order`,
   );
 
-  let cmdName = '';
+  const cmdName = '';
   let internalHandler = optionsOrHandler;
   let internalOptions: CommandOptions = {};
 
@@ -75,10 +75,7 @@ function withCommandHelper(
       textEditor: isTextEditorCmd,
     };
 
-    internalRegisterCommand(
-      internalOptions,
-      internalHandler as IVoidHandler,
-    );
+    internalRegisterCommand(internalOptions, internalHandler as IVoidHandler);
   };
 }
 /**
@@ -87,9 +84,7 @@ function withCommandHelper(
  * @param optionsOrHandler
  * @returns
  */
-export function withCommand(
-  optionsOrHandler: CommandOptions | IVoidHandler,
-) {
+export function withCommand(optionsOrHandler: CommandOptions | IVoidHandler) {
   return withCommandHelper(optionsOrHandler, false);
 }
 

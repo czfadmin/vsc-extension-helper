@@ -22,7 +22,7 @@ export function internalRegisterCommand(
     );
   }
 
-  const _name = `${group.length ? group.join('.') + '.' : ''}${name}`.trim();
+  const _name = `${group.length ? `${group.join('.')}.` : ''}${name}`.trim();
 
   addCommand(_name, {
     ...options,
